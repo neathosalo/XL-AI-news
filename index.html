@@ -41,6 +41,9 @@
           <button id="modeAiBtn" class="mode-btn active" type="button">AI强相关</button>
           <button id="modeAllBtn" class="mode-btn" type="button">全量</button>
         </div>
+        <div class="star-filter">
+          <button id="starFilterBtn" class="star-btn" type="button" title="查看已收藏">⭐ <span id="starCount">0</span></button>
+        </div>
         <label id="allDedupeWrap" class="all-dedupe" for="allDedupeToggle">
           <input id="allDedupeToggle" type="checkbox" checked />
           <span class="all-dedupe-dot"></span>
@@ -62,7 +65,15 @@
           </div>
         </div>
         <div id="waytoagiMeta" class="waytoagi-meta"></div>
-        <div id="waytoagiList" class="waytoagi-list"></div>
+        <div id="waytoagiList" class="waytoagi-list"><div class="empty">加载中...</div></div>
+      </section>
+
+      <section class="hot-topics-wrap">
+        <div class="hot-topics-head">
+          <h2>🔥 热门话题</h2>
+          <span id="hotTopicsHint">多平台都在讨论</span>
+        </div>
+        <div id="hotTopicsList" class="hot-topics-list"></div>
       </section>
 
       <section class="site-pills" id="sitePills"></section>
@@ -82,6 +93,7 @@
           <span class="site"></span>
           <span class="source"></span>
           <time class="time"></time>
+          <button class="star-toggle" data-url="" title="收藏此新闻">☆</button>
         </div>
         <a class="title" target="_blank" rel="noopener noreferrer"></a>
       </article>

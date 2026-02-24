@@ -35,6 +35,21 @@ BROWSER_UA = (
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 )
 SH_TZ = ZoneInfo("Asia/Shanghai")
+
+HOT_KEYWORDS_STOPWORDS = {
+    "的", "了", "在", "是", "我", "有", "和", "就", "不", "人", "都", "一", "一个",
+    "上", "也", "很", "到", "说", "要", "去", "你", "会", "着", "没有", "看", "好",
+    "自己", "这", "那", "什么", "他", "她", "它", "们", "这个", "那个", "哪个",
+    "如何", "为什么", "怎么", "什么", "哪", "谁", "哪里", "何时", "多少",
+    "可以", "能", "会", "应该", "必须", "需要", "想要", "希望",
+    "但是", "然而", "不过", "而且", "或者", "以及", "因为", "所以", "如果",
+    "新", "最新", "最", "更", "很", "非常", "太", "最", "第一", "首次",
+    "发布", "推出", "宣布", "更新", "升级", "发布", "上线", "开源", "免费",
+    "中国", "国内", "国外", "全球", "美国", "欧洲", "亚洲",
+    "今天", "昨天", "明天", "本周", "上周", "下周", "本月", "上月", "下月",
+    "年", "月", "日", "时", "分", "秒",
+    "亿", "万", "千", "百", "十", "个", "只", "条", "篇",
+}
 WAYTOAGI_DEFAULT = (
     "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
 )
@@ -83,6 +98,68 @@ class RawItem:
 
 def utc_now() -> datetime:
     return datetime.now(tz=UTC)
+
+
+def extract_hot_keywords(items: list[dict], top_n: int = 20) -> list[dict]:
+    """
+    从新闻标题中提取热门关键词。
+    
+    Args:
+        items: 新闻列表
+        top_n: 返回前N个热门关键词
+    
+    Returns:
+        热门关键词列表，包含关键词、出现次数和相关新闻
+    """
+    keyword_counts: dict[str, int] = {}
+    keyword_items: dict[str, dict[str, dict]] = {}  # 改用dict存储，key为URL，避免重复
+    
+    for item in items:
+        title = item.get("title", "") or ""
+        title_zh = item.get("title_zh", "") or ""
+        full_title = f"{title} {title_zh}"
+        
+        words = re.findall(r'[\u4e00-\u9fff]{2,8}|[A-Z][a-z]+(?:[A-Z][a-z]+)*|[A-Z]{2,}|[a-z]{3,}', full_title)
+        
+        # 对每条新闻，每个关键词只计一次
+        seen_words_in_item = set()
+        for word in words:
+            word_lower = word.lower()
+            if word_lower in HOT_KEYWORDS_STOPWORDS or word in HOT_KEYWORDS_STOPWORDS:
+                continue
+            if len(word) < 2:
+                continue
+            if re.match(r'^\d+$', word):
+                continue
+            if word in seen_words_in_item:
+                continue
+            seen_words_in_item.add(word)
+            
+            keyword_counts[word] = keyword_counts.get(word, 0) + 1
+            if word not in keyword_items:
+                keyword_items[word] = {}
+            
+            url = item.get("url", "")
+            if url and url not in keyword_items[word] and len(keyword_items[word]) < 5:
+                keyword_items[word][url] = {
+                    "title": item.get("title"),
+                    "title_zh": item.get("title_zh"),
+                    "url": url,
+                    "site_name": item.get("site_name"),
+                }
+    
+    sorted_keywords = sorted(keyword_counts.items(), key=lambda x: -x[1])[:top_n]
+    
+    hot_topics = []
+    for keyword, count in sorted_keywords:
+        if count >= 2:
+            hot_topics.append({
+                "keyword": keyword,
+                "count": count,
+                "related_items": list(keyword_items.get(keyword, {}).values()),
+            })
+    
+    return hot_topics
 
 
 def iso(dt: datetime | None) -> str | None:
@@ -160,21 +237,39 @@ def maybe_fix_mojibake(text: str) -> str:
     s = (text or "").strip()
     if not s:
         return s
-    # Common mojibake signature from UTF-8 bytes decoded as Latin-1.
-    if re.search(r"[Ãâåèæïð]|[\x80-\x9f]|æ|ç|å|é", s) is None:
+    
+    # 检测是否有大量 Latin-1 范围内的字符 (0x80-0xFF)
+    # 这些字符通常是 UTF-8 字节被错误解码为 Latin-1
+    latin1_chars = [c for c in s if 0x80 <= ord(c) <= 0xFF]
+    if not latin1_chars:
         return s
-    for enc in ("latin1", "cp1252"):
-        try:
-            fixed = s.encode(enc).decode("utf-8")
-            if fixed and fixed != s:
-                return fixed
-        except Exception:
-            continue
+    
+    # 如果有大量 Latin-1 字符，尝试修复
+    latin1_ratio = len(latin1_chars) / len(s) if s else 0
+    if latin1_ratio > 0.2:
+        for enc in ("latin1", "cp1252"):
+            try:
+                fixed = s.encode(enc).decode("utf-8")
+                if fixed and fixed != s:
+                    # 验证修复后是否包含中文
+                    if has_cjk(fixed):
+                        return fixed
+            except Exception:
+                continue
+    
     return s
 
 
 def has_cjk(text: str) -> bool:
-    return bool(re.search(r"[\u4e00-\u9fff]", text or ""))
+    s = text or ""
+    if not s:
+        return False
+    cjk_count = len(re.findall(r'[\u4e00-\u9fff]', s))
+    total_chars = len(re.sub(r'\s', '', s))
+    if total_chars == 0:
+        return False
+    ratio = cjk_count / total_chars
+    return ratio > 0.3
 
 
 def is_mostly_english(text: str) -> bool:
@@ -628,10 +723,19 @@ def extract_next_f_merged(html: str) -> str:
     if not chunks:
         return ""
     merged = "".join(chunks)
-    try:
-        return bytes(merged, "utf-8").decode("unicode_escape")
-    except Exception:
-        return merged
+    # 只替换特定的转义序列，避免破坏中文
+    merged = merged.replace("\\u002f", "/")
+    merged = merged.replace("\\u0026", "&")
+    merged = merged.replace("\\u003d", "=")
+    merged = merged.replace("\\u003f", "?")
+    merged = merged.replace("\\u0025", "%")
+    merged = merged.replace("\\u0023", "#")
+    merged = merged.replace("\\/", "/")
+    merged = merged.replace("\\\"", "\"")
+    merged = merged.replace("\\n", "\n")
+    merged = merged.replace("\\r", "\r")
+    merged = merged.replace("\\t", "\t")
+    return merged
 
 
 def extract_balanced_json(decoded: str, key: str) -> Any:
@@ -1993,7 +2097,17 @@ def add_bilingual_fields(
     return ai_out, all_out, cache
 
 
-def dedupe_items_by_title_url(items: list[dict[str, Any]], random_pick: bool = True) -> list[dict[str, Any]]:
+def dedupe_items_by_title_url(items: list[dict[str, Any]], random_pick: bool = True) -> tuple[list[dict[str, Any]], list[dict[str, any]]]:
+    """
+    去重并识别热门转载新闻。
+    
+    Args:
+        items: 原始新闻列表
+        random_pick: 是否随机选择
+    
+    Returns:
+        (去重后的列表, 热门转载新闻列表)
+    """
     groups: dict[str, list[dict[str, Any]]] = {}
     for item in items:
         site_id = str(item.get("site_id") or "").strip().lower()
@@ -2005,22 +2119,46 @@ def dedupe_items_by_title_url(items: list[dict[str, Any]], random_pick: bool = T
             key = f"{title}||{url}"
         groups.setdefault(key, []).append(item)
 
+    
     out: list[dict[str, Any]] = []
-    for values in groups.values():
-        if random_pick:
-            out.append(random.choice(values))
-        else:
-            chosen = max(
-                values,
-                key=lambda x: (
-                    event_time(x) or datetime.min.replace(tzinfo=UTC),
-                    str(x.get("id") or ""),
-                ),
-            )
-            out.append(chosen)
-
+    hot_cross_site: list[dict[str, Any]] = []
+    
+    for key, values in groups.items():
+        chosen = max(
+            values,
+            key=lambda x: (
+                event_time(x) or datetime.min.replace(tzinfo=UTC),
+                str(x.get("id") or ""),
+            ),
+        )
+        
+        if len(values) >= 2:
+            sites = set(v.get("site_id") for v in values if v.get("site_id"))
+            sources = set(v.get("source") for v in values if v.get("source"))
+            
+            hot_item = {
+                **chosen,
+                "cross_site_count": len(sites),
+                "cross_sites": list(sites),
+                "cross_sources": list(sources),
+                "all_occurrences": [
+                    {
+                        "site_id": v.get("site_id"),
+                        "site_name": v.get("site_name"),
+                        "source": v.get("source"),
+                        "first_seen_at": v.get("first_seen_at"),
+                    }
+                    for v in values
+                ],
+            }
+            hot_cross_site.append(hot_item)
+        
+        out.append(chosen)
+    
     out.sort(key=lambda x: event_time(x) or datetime.min.replace(tzinfo=UTC), reverse=True)
-    return out
+    hot_cross_site.sort(key=lambda x: x.get("cross_site_count", 0), reverse=True)
+    
+    return out, hot_cross_site
 
 
 def main() -> int:
@@ -2159,8 +2297,8 @@ def main() -> int:
         title_cache,
         max_new_translations=max(0, args.translate_max_new),
     )
-    latest_items_ai_dedup = dedupe_items_by_title_url(latest_items, random_pick=False)
-    latest_items_all_dedup = dedupe_items_by_title_url(latest_items_all, random_pick=True)
+    latest_items_ai_dedup, hot_cross_site_ai = dedupe_items_by_title_url(latest_items, random_pick=False)
+    latest_items_all_dedup, hot_cross_site_all = dedupe_items_by_title_url(latest_items_all, random_pick=True)
 
     # site stats
     site_stat: dict[str, dict[str, Any]] = {}
@@ -2210,6 +2348,8 @@ def main() -> int:
         "site_count": len(site_stat),
         "source_count": len({f"{i['site_id']}::{i['source']}" for i in latest_items_ai_dedup}),
         "site_stats": sorted(site_stat.values(), key=lambda x: x["count"], reverse=True),
+        "hot_topics": extract_hot_keywords(latest_items_ai_dedup, top_n=20),
+        "hot_cross_site": hot_cross_site_ai[:15],
         "items": latest_items_ai_dedup,
         "items_ai": latest_items_ai_dedup,
         "items_all_raw": latest_items_all,

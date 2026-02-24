@@ -13,7 +13,11 @@ const state = {
   waytoagiMode: "today",
   waytoagiData: null,
   generatedAt: null,
+  starredUrls: new Set(),
+  showStarredOnly: false,
 };
+
+const STORAGE_KEY_STARRED = "xl-ai-news-starred-v1";
 
 const statsEl = document.getElementById("stats");
 const siteSelectEl = document.getElementById("siteSelect");
@@ -36,8 +40,98 @@ const waytoagiListEl = document.getElementById("waytoagiList");
 const waytoagiTodayBtnEl = document.getElementById("waytoagiTodayBtn");
 const waytoagi7dBtnEl = document.getElementById("waytoagi7dBtn");
 
+const starFilterBtnEl = document.getElementById("starFilterBtn");
+const starCountEl = document.getElementById("starCount");
+const hotTopicsListEl = document.getElementById("hotTopicsList");
+const hotTopicsHintEl = document.getElementById("hotTopicsHint");
+
 function fmtNumber(n) {
   return new Intl.NumberFormat("zh-CN").format(n || 0);
+}
+
+/**
+ * 从LocalStorage加载星标数据
+ */
+function loadStarredFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_STARRED);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      state.starredUrls = new Set(arr);
+    }
+  } catch (e) {
+    state.starredUrls = new Set();
+  }
+}
+
+/**
+ * 保存星标数据到LocalStorage
+ */
+function saveStarredToStorage() {
+  try {
+    const arr = Array.from(state.starredUrls);
+    localStorage.setItem(STORAGE_KEY_STARRED, JSON.stringify(arr));
+  } catch (e) {
+    console.error("Failed to save starred items:", e);
+  }
+}
+
+/**
+ * 切换星标状态
+ * @param {string} url - 新闻URL
+ * @param {object} item - 新闻对象
+ */
+function toggleStar(url, item) {
+  if (state.starredUrls.has(url)) {
+    state.starredUrls.delete(url);
+  } else {
+    state.starredUrls.add(url);
+  }
+  saveStarredToStorage();
+  updateStarCount();
+  renderList();
+}
+
+/**
+ * 更新星标计数显示
+ */
+function updateStarCount() {
+  if (starCountEl) {
+    starCountEl.textContent = state.starredUrls.size;
+  }
+  if (starFilterBtnEl) {
+    starFilterBtnEl.classList.toggle("active", state.showStarredOnly);
+  }
+}
+
+/**
+ * 导出星标数据为JSON（供智能体使用）
+ */
+function exportStarredData() {
+  const allItems = [...state.itemsAi, ...state.itemsAllRaw];
+  const starredItems = allItems.filter(item => state.starredUrls.has(item.url));
+  
+  const exportData = {
+    exported_at: new Date().toISOString(),
+    total_count: starredItems.length,
+    items: starredItems.map(item => ({
+      title: item.title,
+      title_zh: item.title_zh || "",
+      title_en: item.title_en || "",
+      url: item.url,
+      site_name: item.site_name,
+      source: item.source,
+      published_at: item.published_at || item.first_seen_at
+    }))
+  };
+  
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `starred-news-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function fmtTime(iso) {
@@ -50,6 +144,176 @@ function fmtTime(iso) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(d);
+}
+
+/**
+ * 渲染热门话题区域
+ * @param {Array} hotTopics - 热门话题列表
+ * @param {Array} hotCrossSite - 热门转载新闻列表
+ */
+function renderHotTopics(hotTopics, hotCrossSite) {
+  if (!hotTopicsListEl) return;
+  
+  hotTopicsListEl.innerHTML = "";
+  
+  if (hotCrossSite && hotCrossSite.length > 0) {
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "hot-section-title";
+    sectionTitle.innerHTML = "<b>🔥 热门转载</b> <span class='hot-section-hint'>多平台都在报道</span>";
+    hotTopicsListEl.appendChild(sectionTitle);
+    
+    hotCrossSite.slice(0, 10).forEach((item, index) => {
+      const tag = document.createElement("button");
+      tag.className = "hot-topic-tag hot-cross-site";
+      const siteCount = item.cross_site_count || 1;
+      tag.innerHTML = `${item.title_zh || item.title || "未知标题"}`.slice(0, 30) + `... <span class="hot-topic-count">${siteCount}平台</span>`;
+      tag.onclick = () => toggleHotCrossSiteDetail(item, tag);
+      hotTopicsListEl.appendChild(tag);
+    });
+  }
+  
+  if (hotTopics && hotTopics.length > 0) {
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "hot-section-title";
+    sectionTitle.style.marginTop = hotCrossSite && hotCrossSite.length > 0 ? "16px" : "0";
+    sectionTitle.innerHTML = "<b>📊 热门关键词</b> <span class='hot-section-hint'>高频话题</span>";
+    hotTopicsListEl.appendChild(sectionTitle);
+    
+    hotTopics.slice(0, 15).forEach((topic, index) => {
+      const tag = document.createElement("button");
+      tag.className = "hot-topic-tag";
+      tag.innerHTML = `${topic.keyword}<span class="hot-topic-count">${topic.count}</span>`;
+      tag.onclick = () => toggleHotTopicDetail(topic, tag);
+      hotTopicsListEl.appendChild(tag);
+    });
+  }
+}
+
+/**
+ * 切换热门话题详情显示
+ * @param {Object} topic - 话题对象
+ * @param {HTMLElement} tagEl - 标签元素
+ */
+function toggleHotTopicDetail(topic, tagEl) {
+  const allTags = hotTopicsListEl.querySelectorAll(".hot-topic-tag");
+  allTags.forEach(t => t.classList.remove("active"));
+  
+  let detailEl = hotTopicsListEl.querySelector(".hot-topics-items");
+  
+  if (detailEl && detailEl.dataset.keyword === topic.keyword) {
+    detailEl.remove();
+    return;
+  }
+  
+  if (detailEl) detailEl.remove();
+  
+  tagEl.classList.add("active");
+  
+  detailEl = document.createElement("div");
+  detailEl.className = "hot-topics-items visible";
+  detailEl.dataset.keyword = topic.keyword;
+  
+  const title = document.createElement("h4");
+  title.textContent = `"${topic.keyword}" 相关新闻 (${topic.count}条)`;
+  detailEl.appendChild(title);
+  
+  topic.related_items.forEach(item => {
+    const itemEl = document.createElement("div");
+    itemEl.className = "hot-topic-item";
+    
+    const siteEl = document.createElement("span");
+    siteEl.className = "hot-topic-item-site";
+    siteEl.textContent = item.site_name || "未知来源";
+    
+    const linkEl = document.createElement("a");
+    linkEl.className = "hot-topic-item-title";
+    linkEl.href = item.url;
+    linkEl.target = "_blank";
+    linkEl.rel = "noopener noreferrer";
+    linkEl.textContent = item.title_zh || item.title || "无标题";
+    
+    itemEl.appendChild(siteEl);
+    itemEl.appendChild(linkEl);
+    detailEl.appendChild(itemEl);
+  });
+  
+  hotTopicsListEl.appendChild(detailEl);
+}
+
+/**
+ * 切换热门转载新闻详情显示
+ * @param {Object} item - 新闻对象
+ * @param {HTMLElement} tagEl - 标签元素
+ */
+function toggleHotCrossSiteDetail(item, tagEl) {
+  const allTags = hotTopicsListEl.querySelectorAll(".hot-topic-tag");
+  allTags.forEach(t => t.classList.remove("active"));
+  
+  let detailEl = hotTopicsListEl.querySelector(".hot-topics-items");
+  
+  if (detailEl && detailEl.dataset.url === item.url) {
+    detailEl.remove();
+    return;
+  }
+  
+  if (detailEl) detailEl.remove();
+  
+  tagEl.classList.add("active");
+  
+  detailEl = document.createElement("div");
+  detailEl.className = "hot-topics-items visible";
+  detailEl.dataset.url = item.url;
+  
+  const title = document.createElement("h4");
+  title.textContent = item.title_zh || item.title || "无标题";
+  detailEl.appendChild(title);
+  
+  const metaInfo = document.createElement("div");
+  metaInfo.className = "hot-cross-meta";
+  metaInfo.innerHTML = `<span class="hot-cross-count">被 ${item.cross_site_count} 个平台转载</span>`;
+  detailEl.appendChild(metaInfo);
+  
+  const linkEl = document.createElement("a");
+  linkEl.className = "hot-topic-item-title";
+  linkEl.href = item.url;
+  linkEl.target = "_blank";
+  linkEl.rel = "noopener noreferrer";
+  linkEl.textContent = "查看原文 →";
+  linkEl.style.display = "inline-block";
+  linkEl.style.marginTop = "8px";
+  detailEl.appendChild(linkEl);
+  
+  if (item.all_occurrences && item.all_occurrences.length > 0) {
+    const occTitle = document.createElement("div");
+    occTitle.className = "hot-occurrences-title";
+    occTitle.textContent = "转载来源：";
+    occTitle.style.marginTop = "12px";
+    occTitle.style.fontSize = "12px";
+    occTitle.style.color = "#666";
+    detailEl.appendChild(occTitle);
+    
+    item.all_occurrences.forEach(occ => {
+      const occEl = document.createElement("div");
+      occEl.className = "hot-topic-item";
+      occEl.style.padding = "6px 0";
+      
+      const siteEl = document.createElement("span");
+      siteEl.className = "hot-topic-item-site";
+      siteEl.textContent = occ.site_name || "未知来源";
+      
+      const sourceEl = document.createElement("span");
+      sourceEl.style.marginLeft = "8px";
+      sourceEl.style.fontSize = "11px";
+      sourceEl.style.color = "#999";
+      sourceEl.textContent = occ.source || "";
+      
+      occEl.appendChild(siteEl);
+      occEl.appendChild(sourceEl);
+      detailEl.appendChild(occEl);
+    });
+  }
+  
+  hotTopicsListEl.appendChild(detailEl);
 }
 
 function fmtDate(iso) {
@@ -165,6 +429,7 @@ function getFilteredItems() {
   const q = state.query.trim().toLowerCase();
   return modeItems().filter((item) => {
     if (state.siteFilter && item.site_id !== state.siteFilter) return false;
+    if (state.showStarredOnly && !state.starredUrls.has(item.url)) return false;
     if (!q) return true;
     const hay = `${item.title || ""} ${item.title_zh || ""} ${item.title_en || ""} ${item.site_name || ""} ${item.source || ""}`.toLowerCase();
     return hay.includes(q);
@@ -193,6 +458,20 @@ function renderItemNode(item) {
     titleEl.textContent = item.title || zh || en;
   }
   titleEl.href = item.url;
+  titleEl.title = item.url;
+
+  const starBtn = node.querySelector(".star-toggle");
+  if (starBtn) {
+    const isStarred = state.starredUrls.has(item.url);
+    starBtn.textContent = isStarred ? "★" : "☆";
+    starBtn.classList.toggle("starred", isStarred);
+    starBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleStar(item.url, item);
+    });
+  }
+
   return node;
 }
 
@@ -367,12 +646,15 @@ async function loadWaytoagiData() {
 }
 
 async function init() {
+  loadStarredFromStorage();
+  updateStarCount();
+  
   const [newsResult, waytoagiResult] = await Promise.allSettled([loadNewsData(), loadWaytoagiData()]);
 
   if (newsResult.status === "fulfilled") {
     const payload = newsResult.value;
     state.itemsAi = payload.items_ai || payload.items || [];
-    state.itemsAllRaw = payload.items_all_raw || payload.items_all || payload.items || [];
+    state.itemsAllRaw = payload.items_all_raw || payload.items_all || [];
     state.itemsAll = payload.items_all || payload.items || [];
     state.statsAi = payload.site_stats || [];
     state.totalAi = payload.total_items || state.itemsAi.length;
@@ -383,6 +665,7 @@ async function init() {
     setStats(payload);
     renderModeSwitch();
     renderSiteFilters();
+    renderHotTopics(payload.hot_topics || [], payload.hot_cross_site || []);
     renderList();
     updatedAtEl.textContent = `更新时间：${fmtTime(state.generatedAt)}`;
   } else {
@@ -444,6 +727,48 @@ if (waytoagi7dBtnEl) {
   waytoagi7dBtnEl.addEventListener("click", () => {
     state.waytoagiMode = "7d";
     if (state.waytoagiData) renderWaytoagi(state.waytoagiData);
+  });
+}
+
+if (starFilterBtnEl) {
+  starFilterBtnEl.addEventListener("click", () => {
+    state.showStarredOnly = !state.showStarredOnly;
+    updateStarCount();
+    renderList();
+    if (state.showStarredOnly) {
+      const exportBtn = document.createElement("button");
+      exportBtn.className = "star-action-btn";
+      exportBtn.textContent = "导出星标JSON";
+      exportBtn.onclick = exportStarredData;
+      
+      const clearBtn = document.createElement("button");
+      clearBtn.className = "star-action-btn";
+      clearBtn.textContent = "清除所有星标";
+      clearBtn.onclick = () => {
+        if (confirm("确定要清除所有星标吗？")) {
+          state.starredUrls.clear();
+          saveStarredToStorage();
+          updateStarCount();
+          renderList();
+        }
+      };
+      
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "star-actions";
+      actionsDiv.appendChild(exportBtn);
+      actionsDiv.appendChild(clearBtn);
+      
+      const existingActions = document.querySelector(".star-actions");
+      if (existingActions) existingActions.remove();
+      
+      const listHead = document.querySelector(".list-head");
+      if (listHead) {
+        listHead.appendChild(actionsDiv);
+      }
+    } else {
+      const existingActions = document.querySelector(".star-actions");
+      if (existingActions) existingActions.remove();
+    }
   });
 }
 
