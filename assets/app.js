@@ -10,14 +10,8 @@ const state = {
   siteFilter: "",
   query: "",
   mode: "ai",
-  waytoagiMode: "today",
-  waytoagiData: null,
   generatedAt: null,
-  starredUrls: new Set(),
-  showStarredOnly: false,
 };
-
-const STORAGE_KEY_STARRED = "xl-ai-news-starred-v1";
 
 const statsEl = document.getElementById("stats");
 const siteSelectEl = document.getElementById("siteSelect");
@@ -33,105 +27,10 @@ const modeHintEl = document.getElementById("modeHint");
 const allDedupeWrapEl = document.getElementById("allDedupeWrap");
 const allDedupeToggleEl = document.getElementById("allDedupeToggle");
 const allDedupeLabelEl = document.getElementById("allDedupeLabel");
-
-const waytoagiUpdatedAtEl = document.getElementById("waytoagiUpdatedAt");
-const waytoagiMetaEl = document.getElementById("waytoagiMeta");
-const waytoagiListEl = document.getElementById("waytoagiList");
-const waytoagiTodayBtnEl = document.getElementById("waytoagiTodayBtn");
-const waytoagi7dBtnEl = document.getElementById("waytoagi7dBtn");
-
-const starFilterBtnEl = document.getElementById("starFilterBtn");
-const starCountEl = document.getElementById("starCount");
 const hotTopicsListEl = document.getElementById("hotTopicsList");
-const hotTopicsHintEl = document.getElementById("hotTopicsHint");
 
 function fmtNumber(n) {
   return new Intl.NumberFormat("zh-CN").format(n || 0);
-}
-
-/**
- * 从LocalStorage加载星标数据
- */
-function loadStarredFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_STARRED);
-    if (raw) {
-      const arr = JSON.parse(raw);
-      state.starredUrls = new Set(arr);
-    }
-  } catch (e) {
-    state.starredUrls = new Set();
-  }
-}
-
-/**
- * 保存星标数据到LocalStorage
- */
-function saveStarredToStorage() {
-  try {
-    const arr = Array.from(state.starredUrls);
-    localStorage.setItem(STORAGE_KEY_STARRED, JSON.stringify(arr));
-  } catch (e) {
-    console.error("Failed to save starred items:", e);
-  }
-}
-
-/**
- * 切换星标状态
- * @param {string} url - 新闻URL
- * @param {object} item - 新闻对象
- */
-function toggleStar(url, item) {
-  if (state.starredUrls.has(url)) {
-    state.starredUrls.delete(url);
-  } else {
-    state.starredUrls.add(url);
-  }
-  saveStarredToStorage();
-  updateStarCount();
-  renderList();
-}
-
-/**
- * 更新星标计数显示
- */
-function updateStarCount() {
-  if (starCountEl) {
-    starCountEl.textContent = state.starredUrls.size;
-  }
-  if (starFilterBtnEl) {
-    starFilterBtnEl.classList.toggle("active", state.showStarredOnly);
-  }
-}
-
-/**
- * 导出星标数据为JSON（供智能体使用）
- */
-function exportStarredData() {
-  const allItems = [...state.itemsAi, ...state.itemsAllRaw];
-  const starredItems = allItems.filter(item => state.starredUrls.has(item.url));
-  
-  const exportData = {
-    exported_at: new Date().toISOString(),
-    total_count: starredItems.length,
-    items: starredItems.map(item => ({
-      title: item.title,
-      title_zh: item.title_zh || "",
-      title_en: item.title_en || "",
-      url: item.url,
-      site_name: item.site_name,
-      source: item.source,
-      published_at: item.published_at || item.first_seen_at
-    }))
-  };
-  
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `starred-news-${new Date().toISOString().slice(0, 10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 function fmtTime(iso) {
@@ -146,11 +45,6 @@ function fmtTime(iso) {
   }).format(d);
 }
 
-/**
- * 渲染热门话题区域
- * @param {Array} hotTopics - 热门话题列表
- * @param {Array} hotCrossSite - 热门转载新闻列表
- */
 function renderHotTopics(hotTopics, hotCrossSite) {
   if (!hotTopicsListEl) return;
   
@@ -162,7 +56,7 @@ function renderHotTopics(hotTopics, hotCrossSite) {
     sectionTitle.innerHTML = "<b>🔥 热门转载</b> <span class='hot-section-hint'>多平台都在报道</span>";
     hotTopicsListEl.appendChild(sectionTitle);
     
-    hotCrossSite.slice(0, 10).forEach((item, index) => {
+    hotCrossSite.slice(0, 10).forEach((item) => {
       const tag = document.createElement("button");
       tag.className = "hot-topic-tag hot-cross-site";
       const siteCount = item.cross_site_count || 1;
@@ -179,7 +73,7 @@ function renderHotTopics(hotTopics, hotCrossSite) {
     sectionTitle.innerHTML = "<b>📊 热门关键词</b> <span class='hot-section-hint'>高频话题</span>";
     hotTopicsListEl.appendChild(sectionTitle);
     
-    hotTopics.slice(0, 15).forEach((topic, index) => {
+    hotTopics.slice(0, 15).forEach((topic) => {
       const tag = document.createElement("button");
       tag.className = "hot-topic-tag";
       tag.innerHTML = `${topic.keyword}<span class="hot-topic-count">${topic.count}</span>`;
@@ -189,11 +83,6 @@ function renderHotTopics(hotTopics, hotCrossSite) {
   }
 }
 
-/**
- * 切换热门话题详情显示
- * @param {Object} topic - 话题对象
- * @param {HTMLElement} tagEl - 标签元素
- */
 function toggleHotTopicDetail(topic, tagEl) {
   const allTags = hotTopicsListEl.querySelectorAll(".hot-topic-tag");
   allTags.forEach(t => t.classList.remove("active"));
@@ -240,11 +129,6 @@ function toggleHotTopicDetail(topic, tagEl) {
   hotTopicsListEl.appendChild(detailEl);
 }
 
-/**
- * 切换热门转载新闻详情显示
- * @param {Object} item - 新闻对象
- * @param {HTMLElement} tagEl - 标签元素
- */
 function toggleHotCrossSiteDetail(item, tagEl) {
   const allTags = hotTopicsListEl.querySelectorAll(".hot-topic-tag");
   allTags.forEach(t => t.classList.remove("active"));
@@ -314,16 +198,6 @@ function toggleHotCrossSiteDetail(item, tagEl) {
   }
   
   hotTopicsListEl.appendChild(detailEl);
-}
-
-function fmtDate(iso) {
-  if (!iso) return "未知日期";
-  const d = new Date(`${iso}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
 }
 
 function setStats(payload) {
@@ -429,7 +303,6 @@ function getFilteredItems() {
   const q = state.query.trim().toLowerCase();
   return modeItems().filter((item) => {
     if (state.siteFilter && item.site_id !== state.siteFilter) return false;
-    if (state.showStarredOnly && !state.starredUrls.has(item.url)) return false;
     if (!q) return true;
     const hay = `${item.title || ""} ${item.title_zh || ""} ${item.title_en || ""} ${item.site_name || ""} ${item.source || ""}`.toLowerCase();
     return hay.includes(q);
@@ -459,18 +332,6 @@ function renderItemNode(item) {
   }
   titleEl.href = item.url;
   titleEl.title = item.url;
-
-  const starBtn = node.querySelector(".star-toggle");
-  if (starBtn) {
-    const isStarred = state.starredUrls.has(item.url);
-    starBtn.textContent = isStarred ? "★" : "☆";
-    starBtn.classList.toggle("starred", isStarred);
-    starBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleStar(item.url, item);
-    });
-  }
 
   return node;
 }
@@ -577,82 +438,15 @@ function renderList() {
   renderGroupedBySiteAndSource(filtered);
 }
 
-function waytoagiViews(waytoagi) {
-  const updates7d = Array.isArray(waytoagi?.updates_7d) ? waytoagi.updates_7d : [];
-  const latestDate = waytoagi?.latest_date || (updates7d.length ? updates7d[0].date : null);
-  const updatesToday = Array.isArray(waytoagi?.updates_today) && waytoagi.updates_today.length
-    ? waytoagi.updates_today
-    : (latestDate ? updates7d.filter((u) => u.date === latestDate) : []);
-  return { updates7d, updatesToday, latestDate };
-}
-
-function renderWaytoagi(waytoagi) {
-  const { updates7d, updatesToday, latestDate } = waytoagiViews(waytoagi);
-  if (waytoagiTodayBtnEl) waytoagiTodayBtnEl.classList.toggle("active", state.waytoagiMode === "today");
-  if (waytoagi7dBtnEl) waytoagi7dBtnEl.classList.toggle("active", state.waytoagiMode === "7d");
-  waytoagiUpdatedAtEl.textContent = `更新时间：${fmtTime(waytoagi.generated_at)}`;
-
-  waytoagiMetaEl.innerHTML = `
-    <a href="${waytoagi.root_url || "#"}" target="_blank" rel="noopener noreferrer">主页面</a>
-    <span>·</span>
-    <a href="${waytoagi.history_url || "#"}" target="_blank" rel="noopener noreferrer">历史更新页</a>
-    <span>·</span>
-    <span>当天(${latestDate || "--"})：${fmtNumber(waytoagi.count_today || updatesToday.length)} 条</span>
-    <span>·</span>
-    <span>近 7 日：${fmtNumber(waytoagi.count_7d || updates7d.length)} 条</span>
-  `;
-
-  waytoagiListEl.innerHTML = "";
-  if (waytoagi.has_error) {
-    const div = document.createElement("div");
-    div.className = "waytoagi-error";
-    div.textContent = waytoagi.error || "WaytoAGI 数据加载失败";
-    waytoagiListEl.appendChild(div);
-    return;
-  }
-
-  const updates = state.waytoagiMode === "today" ? updatesToday : updates7d;
-  if (!updates.length) {
-    const div = document.createElement("div");
-    div.className = "waytoagi-empty";
-    div.textContent = state.waytoagiMode === "today"
-      ? "当天没有更新，可切换到近7日查看。"
-      : (waytoagi.warning || "近 7 日没有更新");
-    waytoagiListEl.appendChild(div);
-    return;
-  }
-
-  updates.forEach((u) => {
-    const row = document.createElement("a");
-    row.className = "waytoagi-item";
-    row.href = u.url || "#";
-    row.target = "_blank";
-    row.rel = "noopener noreferrer";
-    row.innerHTML = `<span class="d">${fmtDate(u.date)}</span><span class="t">${u.title}</span>`;
-    waytoagiListEl.appendChild(row);
-  });
-}
-
 async function loadNewsData() {
   const res = await fetch(`./data/latest-24h.json?t=${Date.now()}`);
   if (!res.ok) throw new Error(`加载 latest-24h.json 失败: ${res.status}`);
   return res.json();
 }
 
-async function loadWaytoagiData() {
-  const res = await fetch(`./data/waytoagi-7d.json?t=${Date.now()}`);
-  if (!res.ok) throw new Error(`加载 waytoagi-7d.json 失败: ${res.status}`);
-  return res.json();
-}
-
 async function init() {
-  loadStarredFromStorage();
-  updateStarCount();
-  
-  const [newsResult, waytoagiResult] = await Promise.allSettled([loadNewsData(), loadWaytoagiData()]);
-
-  if (newsResult.status === "fulfilled") {
-    const payload = newsResult.value;
+  try {
+    const payload = await loadNewsData();
     state.itemsAi = payload.items_ai || payload.items || [];
     state.itemsAllRaw = payload.items_all_raw || payload.items_all || [];
     state.itemsAll = payload.items_all || payload.items || [];
@@ -668,17 +462,9 @@ async function init() {
     renderHotTopics(payload.hot_topics || [], payload.hot_cross_site || []);
     renderList();
     updatedAtEl.textContent = `更新时间：${fmtTime(state.generatedAt)}`;
-  } else {
+  } catch (err) {
     updatedAtEl.textContent = "新闻数据加载失败";
-    newsListEl.innerHTML = `<div class="empty">${newsResult.reason.message}</div>`;
-  }
-
-  if (waytoagiResult.status === "fulfilled") {
-    state.waytoagiData = waytoagiResult.value;
-    renderWaytoagi(state.waytoagiData);
-  } else {
-    waytoagiUpdatedAtEl.textContent = "加载失败";
-    waytoagiListEl.innerHTML = `<div class="waytoagi-error">${waytoagiResult.reason.message}</div>`;
+    newsListEl.innerHTML = `<div class="empty">${err.message}</div>`;
   }
 }
 
@@ -713,62 +499,6 @@ if (allDedupeToggleEl) {
     renderModeSwitch();
     renderSiteFilters();
     renderList();
-  });
-}
-
-if (waytoagiTodayBtnEl) {
-  waytoagiTodayBtnEl.addEventListener("click", () => {
-    state.waytoagiMode = "today";
-    if (state.waytoagiData) renderWaytoagi(state.waytoagiData);
-  });
-}
-
-if (waytoagi7dBtnEl) {
-  waytoagi7dBtnEl.addEventListener("click", () => {
-    state.waytoagiMode = "7d";
-    if (state.waytoagiData) renderWaytoagi(state.waytoagiData);
-  });
-}
-
-if (starFilterBtnEl) {
-  starFilterBtnEl.addEventListener("click", () => {
-    state.showStarredOnly = !state.showStarredOnly;
-    updateStarCount();
-    renderList();
-    if (state.showStarredOnly) {
-      const exportBtn = document.createElement("button");
-      exportBtn.className = "star-action-btn";
-      exportBtn.textContent = "导出星标JSON";
-      exportBtn.onclick = exportStarredData;
-      
-      const clearBtn = document.createElement("button");
-      clearBtn.className = "star-action-btn";
-      clearBtn.textContent = "清除所有星标";
-      clearBtn.onclick = () => {
-        if (confirm("确定要清除所有星标吗？")) {
-          state.starredUrls.clear();
-          saveStarredToStorage();
-          updateStarCount();
-          renderList();
-        }
-      };
-      
-      const actionsDiv = document.createElement("div");
-      actionsDiv.className = "star-actions";
-      actionsDiv.appendChild(exportBtn);
-      actionsDiv.appendChild(clearBtn);
-      
-      const existingActions = document.querySelector(".star-actions");
-      if (existingActions) existingActions.remove();
-      
-      const listHead = document.querySelector(".list-head");
-      if (listHead) {
-        listHead.appendChild(actionsDiv);
-      }
-    } else {
-      const existingActions = document.querySelector(".star-actions");
-      if (existingActions) existingActions.remove();
-    }
   });
 }
 

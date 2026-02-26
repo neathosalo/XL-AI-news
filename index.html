@@ -11,6 +11,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./assets/styles.css" />
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
     <div class="bg-orb orb-a"></div>
@@ -24,9 +25,12 @@
             <p class="hero-tag">AI NEWS INTELLIGENCE</p>
             <h1>24 小时 AI 更新雷达</h1>
           </div>
+          <div class="visit-stats">
+            <span id="busuanzi_container_site_pv">访问量：<span id="busuanzi_value_site_pv">0</span></span>
+          </div>
         </div>
         <p class="hero-sub">
-          聚合 10 个站点并附带 WaytoAGI 近 7 日更新，先全量采集，再筛选 AI/科技强相关话题。
+          聚合 10 个站点近 7 日更新，全量采集，默认筛选 AI/科技强相关话题。
         </p>
 
         <section class="stats" id="stats"></section>
@@ -41,9 +45,6 @@
           <button id="modeAiBtn" class="mode-btn active" type="button">AI强相关</button>
           <button id="modeAllBtn" class="mode-btn" type="button">全量</button>
         </div>
-        <div class="star-filter">
-          <button id="starFilterBtn" class="star-btn" type="button" title="查看已收藏">⭐ <span id="starCount">0</span></button>
-        </div>
         <label id="allDedupeWrap" class="all-dedupe" for="allDedupeToggle">
           <input id="allDedupeToggle" type="checkbox" checked />
           <span class="all-dedupe-dot"></span>
@@ -52,21 +53,6 @@
         <span class="updated" id="updatedAt">加载中...</span>
       </section>
       <div class="mode-hint" id="modeHint">当前视图：AI强相关</div>
-
-      <section class="waytoagi-wrap">
-        <div class="waytoagi-head">
-          <h2>WaytoAGI 更新日志</h2>
-          <div class="waytoagi-tools">
-            <div class="waytoagi-switch">
-              <button id="waytoagiTodayBtn" class="waytoagi-btn active" type="button">当天</button>
-              <button id="waytoagi7dBtn" class="waytoagi-btn" type="button">近7日</button>
-            </div>
-            <span id="waytoagiUpdatedAt">加载中...</span>
-          </div>
-        </div>
-        <div id="waytoagiMeta" class="waytoagi-meta"></div>
-        <div id="waytoagiList" class="waytoagi-list"><div class="empty">加载中...</div></div>
-      </section>
 
       <section class="hot-topics-wrap">
         <div class="hot-topics-head">
@@ -93,7 +79,6 @@
           <span class="site"></span>
           <span class="source"></span>
           <time class="time"></time>
-          <button class="star-toggle" data-url="" title="收藏此新闻">☆</button>
         </div>
         <a class="title" target="_blank" rel="noopener noreferrer"></a>
       </article>
