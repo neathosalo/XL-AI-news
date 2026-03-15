@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-03-15T15:31:15.879049Z",
+  "generated_at": "2026-03-15T16:34:46.260773Z",
   "timezone": "Asia/Shanghai",
   "root_url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview",
   "history_url": "https://waytoagi.feishu.cn/wiki/FjiOwWp2giA7hRk6jjfcPioCnAc",
   "window_days": 7,
   "latest_date": "2026-03-15",
-  "count_today": 2,
+  "count_today": 5,
   "updates_today": [
     {
       "date": "2026-03-15",
@@ -14,11 +14,26 @@
     },
     {
       "date": "2026-03-15",
+      "title": "或许很多人都会被AI领域的专业术语劝退。明明AI工具那么好用，却因为看不懂文档、搞不懂概念，最后只能遗憾放弃。希望作者的这篇适合普通人阅读的AI术语指南能够帮助到你！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
       "title": "OpenClaw靠自身主动记忆极易遗漏混乱，作者的这篇文章给出一套三层记忆工程方案，通过机制兜底解决Agent“记不住、记不全、记不深”的问题。从会话压缩前的Memory Flush自动记录，到每小时心跳扫描补全信息，再到凌晨定时完成全天查漏与深度反思，最终实现日志完整度大幅提升，而且可以沉淀成可复用的经验、决策与项目进展。这套实战架构不仅能直接落地优化OpenClaw，也为所有Agent记忆系统设计提供了可复用思路。",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
+      "title": "OpenClaw训练营第3课，银海通过几个真实案例，带大家一起看看，AI 表格和飞书多维表格到底能帮我们解决哪些问题，以及如何在十分钟左右的时间里，让 OpenClaw 开始帮你管理数据，快来一起一探究竟！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
+      "title": "ElevenLabs 绝对是今年 AI 多模态领域收入增长最快的公司之一，据称最新ARR高达3.3亿美金， 而从2亿美金到3.3亿只用了5 个月时间，同时在今年2月完成了D轮融资，估值110亿美金 。很有意思的是，公司的产品与增长没有走垂直深耕的传统路线，而是以通用技术+多线产品快速扩张。把视频营销、系统化发布与渠道运营做成低成本增长杠杆，再通过组织的创新与 AI 赋能良性扩张。ElevenLabs 增长负责人 Luke Harries ，完整还了原其从 0 到百亿估值的实战打法。希望能为大家带来帮助！",
       "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
     }
   ],
-  "count_7d": 41,
+  "count_7d": 38,
   "updates_7d": [
     {
       "date": "2026-03-15",
@@ -27,7 +42,22 @@
     },
     {
       "date": "2026-03-15",
+      "title": "或许很多人都会被AI领域的专业术语劝退。明明AI工具那么好用，却因为看不懂文档、搞不懂概念，最后只能遗憾放弃。希望作者的这篇适合普通人阅读的AI术语指南能够帮助到你！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
       "title": "OpenClaw靠自身主动记忆极易遗漏混乱，作者的这篇文章给出一套三层记忆工程方案，通过机制兜底解决Agent“记不住、记不全、记不深”的问题。从会话压缩前的Memory Flush自动记录，到每小时心跳扫描补全信息，再到凌晨定时完成全天查漏与深度反思，最终实现日志完整度大幅提升，而且可以沉淀成可复用的经验、决策与项目进展。这套实战架构不仅能直接落地优化OpenClaw，也为所有Agent记忆系统设计提供了可复用思路。",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
+      "title": "OpenClaw训练营第3课，银海通过几个真实案例，带大家一起看看，AI 表格和飞书多维表格到底能帮我们解决哪些问题，以及如何在十分钟左右的时间里，让 OpenClaw 开始帮你管理数据，快来一起一探究竟！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
+      "title": "ElevenLabs 绝对是今年 AI 多模态领域收入增长最快的公司之一，据称最新ARR高达3.3亿美金， 而从2亿美金到3.3亿只用了5 个月时间，同时在今年2月完成了D轮融资，估值110亿美金 。很有意思的是，公司的产品与增长没有走垂直深耕的传统路线，而是以通用技术+多线产品快速扩张。把视频营销、系统化发布与渠道运营做成低成本增长杠杆，再通过组织的创新与 AI 赋能良性扩张。ElevenLabs 增长负责人 Luke Harries ，完整还了原其从 0 到百亿估值的实战打法。希望能为大家带来帮助！",
       "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
     },
     {
@@ -193,36 +223,6 @@
     {
       "date": "2026-03-10",
       "title": "OpenClaw 的浪潮下，Agent概念又一次提起，似乎我们所说的小龙虾，就是 Agent 的代名词。作为小白的我们，在刚接触 AI 时候，各种概念铺面而来： LLM、Chatbot、Agent，是不是总分不清楚？今天这篇文章，将以小白的视角来讲解，到底什么是 LLM、Chatbot 和 Agent，让小白也能了解 Agent 的前世今生。",
-      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
-    },
-    {
-      "date": "2026-03-09",
-      "title": "这篇文章带你拆解learn-claude-code项目，去了解如何从零开始，构建一个Agent。从 50 行核心代码讲起，一步步揭示 Claude Code 等编程智能体的真实运行逻辑：以Bash为基础工具、循环执行为核心，再逐步叠加专业工具、显式任务清单、上下文隔离与记忆压缩、持久化任务看板，最终进化到多 Agent 后台并行、文件通信、团队协作与自治团队。",
-      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
-    },
-    {
-      "date": "2026-03-09",
-      "title": "近期AI音乐行业多款实用工具扎堆亮相：MiniMax Music 2.5+解锁跨风格高保真纯音乐生成，Aiode推出合规授权AI鼓手，Cryo Mix的Nova AI让专业混音成本大大降低，Moises邀请知名歌手掌舵，明确AI是创作“画笔”而非“代笔”。而在合规方面，Apple Music强制AI内容加上透明标签。同时，多篇新论文聚焦技术优化与评估标准，为行业铺路。",
-      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
-    },
-    {
-      "date": "2026-03-09",
-      "title": "装好OpenClaw却用着不顺手？小互这篇配置指南帮你把“闲置龙虾”打造成专属助手！这篇文章的所有配置，你都可以通过跟小龙虾聊天来完成。你不需要自己去一个个的找文件、改配置，你也找不到。你跟小龙虾的关系，应该是老板和助理的关系，甚至是主人和奴隶的关系😁：你只需要说\"我要什么效果\"，它来搞定怎么实现。",
-      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
-    },
-    {
-      "date": "2026-03-09",
-      "title": "最近腾讯也携 Qclaw 入局 “养虾” 热潮，但工具价值的核心在于使用者思维：大多数人仅仅把它当作高级待办，而真正的价值在于搭建自动化工作流。作者这篇文章从熟练对话AI，到解放重复劳动，再到用Agent设计流程、组建虚拟团队给出了清晰进化路径。只有掌握这种驾驭能力，才能以一己之力撬动团队级产出！",
-      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
-    },
-    {
-      "date": "2026-03-09",
-      "title": "前段时间作者分享了电商评论深度分析的n8n工作流，当时说要把这个工作流升级成 Skill。今天，终于把这个坑填上了。专为电商场景设计的 AI 评论洞察分析工具—Review Analyzer Skill，已经发布并开源在GitHub上了。目前 1.0 版本仅支持在 Claude Code 中运行，下个版本会支持 openclaw、opencode 等更多平台。",
-      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
-    },
-    {
-      "date": "2026-03-09",
-      "title": "云舒花了一周时间拆解OpenClaw的源码，带你一起搞清楚：它到底怎么让AI做到 7×24 小时运行的。今天这篇文章跟大家聊聊：OpenClaw为什么能火、它的核心架构是什么、以及3个长期判断。",
       "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
     }
   ],
