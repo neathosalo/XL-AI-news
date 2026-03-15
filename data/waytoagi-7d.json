@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-03-15T16:34:46.260773Z",
+  "generated_at": "2026-03-15T17:29:06.834372Z",
   "timezone": "Asia/Shanghai",
   "root_url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview",
   "history_url": "https://waytoagi.feishu.cn/wiki/FjiOwWp2giA7hRk6jjfcPioCnAc",
   "window_days": 7,
   "latest_date": "2026-03-15",
-  "count_today": 5,
+  "count_today": 7,
   "updates_today": [
     {
       "date": "2026-03-15",
@@ -14,7 +14,17 @@
     },
     {
       "date": "2026-03-15",
+      "title": "最近一篇关于 AI 记忆系统的论文引发了不少讨论，结论是\"检索比存储更重要\"。但如果换一个角度看这个问题，一个更有价值的等式浮出水面： 召回 = 存储 + 检索 。这个等式把\"写进去什么\"和\"找出来什么\"绑在了一起，存储决定了检索的天花板。很多做 RAG 系统的团队都踩过一个坑：精心设计的摘要和事实提取，效果反而不如把原始文本块直接存进去。这篇文章跟着作者一起探究这背后的原因！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
       "title": "或许很多人都会被AI领域的专业术语劝退。明明AI工具那么好用，却因为看不懂文档、搞不懂概念，最后只能遗憾放弃。希望作者的这篇适合普通人阅读的AI术语指南能够帮助到你！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
+      "title": "很多人都在用 ChatGPT、Claude、Gemini。但一聊到大语言模型相关概念，就容易被一堆术语绕晕。所以这篇，作者把这些核心概念重新整理成 6 大类，按“概念 + 大白话理解 + 例子”来讲，读起来会更清楚。",
       "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
     },
     {
@@ -33,7 +43,7 @@
       "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
     }
   ],
-  "count_7d": 38,
+  "count_7d": 40,
   "updates_7d": [
     {
       "date": "2026-03-15",
@@ -42,7 +52,17 @@
     },
     {
       "date": "2026-03-15",
+      "title": "最近一篇关于 AI 记忆系统的论文引发了不少讨论，结论是\"检索比存储更重要\"。但如果换一个角度看这个问题，一个更有价值的等式浮出水面： 召回 = 存储 + 检索 。这个等式把\"写进去什么\"和\"找出来什么\"绑在了一起，存储决定了检索的天花板。很多做 RAG 系统的团队都踩过一个坑：精心设计的摘要和事实提取，效果反而不如把原始文本块直接存进去。这篇文章跟着作者一起探究这背后的原因！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
       "title": "或许很多人都会被AI领域的专业术语劝退。明明AI工具那么好用，却因为看不懂文档、搞不懂概念，最后只能遗憾放弃。希望作者的这篇适合普通人阅读的AI术语指南能够帮助到你！",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
+    {
+      "date": "2026-03-15",
+      "title": "很多人都在用 ChatGPT、Claude、Gemini。但一聊到大语言模型相关概念，就容易被一堆术语绕晕。所以这篇，作者把这些核心概念重新整理成 6 大类，按“概念 + 大白话理解 + 例子”来讲，读起来会更清楚。",
       "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
     },
     {
