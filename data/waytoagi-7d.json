@@ -1,12 +1,17 @@
 {
-  "generated_at": "2026-03-16T09:40:34.394039Z",
+  "generated_at": "2026-03-16T10:54:37.034854Z",
   "timezone": "Asia/Shanghai",
   "root_url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview",
   "history_url": "https://waytoagi.feishu.cn/wiki/FjiOwWp2giA7hRk6jjfcPioCnAc",
   "window_days": 7,
   "latest_date": "2026-03-16",
-  "count_today": 2,
+  "count_today": 3,
   "updates_today": [
+    {
+      "date": "2026-03-16",
+      "title": "本周AITop论文速览来啦！从终端AI编程助手OpenDev的双智能体架构，到Google AutoHarness为AI搭建安全规则护栏，再到SkillNet实现技能持久化复用，每一项都兼具实用性与突破性。同时还涵盖了记忆管理、Transformer架构优化、GPU加速、网页智能体等关键方向，既有工程落地方案，也有底层理论突破。",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
     {
       "date": "2026-03-16",
       "title": "Ramp是美国增长最快的企业金融平台之一，估值320亿美元，超过50,000家客户，年交易处理量超过1000亿美元。在The Pragmatic Summit上，Ramp派出了四人阵容分享他们过去一年在 AI 领域的实战经验：工程执行副总裁（EVP）Nik Koblov、应用 AI 总监 Viral Patel、以及两位资深工程师（Staff Engineer）Will Koh 和 Ian Tracey。干货满满！",
@@ -18,8 +23,13 @@
       "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
     }
   ],
-  "count_7d": 42,
+  "count_7d": 43,
   "updates_7d": [
+    {
+      "date": "2026-03-16",
+      "title": "本周AITop论文速览来啦！从终端AI编程助手OpenDev的双智能体架构，到Google AutoHarness为AI搭建安全规则护栏，再到SkillNet实现技能持久化复用，每一项都兼具实用性与突破性。同时还涵盖了记忆管理、Transformer架构优化、GPU加速、网页智能体等关键方向，既有工程落地方案，也有底层理论突破。",
+      "url": "https://waytoagi.feishu.cn/wiki/QPe5w5g7UisbEkkow8XcDmOpn8e?fromScene=spaceOverview"
+    },
     {
       "date": "2026-03-16",
       "title": "Ramp是美国增长最快的企业金融平台之一，估值320亿美元，超过50,000家客户，年交易处理量超过1000亿美元。在The Pragmatic Summit上，Ramp派出了四人阵容分享他们过去一年在 AI 领域的实战经验：工程执行副总裁（EVP）Nik Koblov、应用 AI 总监 Viral Patel、以及两位资深工程师（Staff Engineer）Will Koh 和 Ian Tracey。干货满满！",
